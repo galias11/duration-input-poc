@@ -7,32 +7,24 @@ import {
   mapValueToString,
   unmaskValue
 } from '../helpers/numberHelper';
+import {
+  getNextPosition
+} from '../helpers/positionHelper';
+
+// @Styles
+import './solution.css';
 
 class Solution extends React.Component {
   constructor(props) {
     super();
     this.state = {
-      currentValue: props.value,
-      focused: false
+      currentValue: props.value
     }
   }
 
   static getDerivedStateFromProps(props, state) {
     if(state.currentValue !== props.value) {
       return { currentValue: props.value };
-    }
-  }
-
-  getNextPosition = (current, isBackwards) => {
-    console.log(current)
-    if(isBackwards && (current === 3 || current === 6)) {
-      return current - 2;
-    } else if (isBackwards) {
-      return current - 1;
-    } else if (current === 1 || current === 4) {
-      return current + 2;
-    } else {
-      return current + 1;
     }
   }
 
@@ -56,7 +48,7 @@ class Solution extends React.Component {
     }
     const { onChange, value } = this.props;
     const valuesArray = mapValueToArray(value);
-    const nextPosition = this.getNextPosition(currentPosition, isBackwards);
+    const nextPosition = getNextPosition(currentPosition, isBackwards);
     valuesArray[currentPosition] = keyValue;
     const unmaskedValue = unmaskValue(valuesArray)
     onChange(unmaskedValue);
@@ -69,10 +61,10 @@ class Solution extends React.Component {
   handleKeyByType = (key, cursorPosition) => {
     switch(key) {
       case "ArrowLeft":
-        this.focusNextPosition(this.getNextPosition(cursorPosition, true), true);
+        this.focusNextPosition(getNextPosition(cursorPosition, true), true);
         break;
       case "ArrowRight":
-        this.focusNextPosition(this.getNextPosition(cursorPosition, false), false);
+        this.focusNextPosition(getNextPosition(cursorPosition, false), false);
         break;
       case "Backspace":
         this.updateValue('0', cursorPosition, true);
@@ -90,6 +82,7 @@ class Solution extends React.Component {
         this.updateValue(key, cursorPosition, false);
         break;
       default:
+        this.focusNextPosition(cursorPosition);
         break;
     }
   }
@@ -100,20 +93,13 @@ class Solution extends React.Component {
     this.handleKeyByType(key, cursorPosition);
   }
 
-  handleFocus = () => {
-    this.focusNextPosition(0);
-    this.setState({ focused: true });
-  }
-
-  handleBlur = () => {
-    this.setState({ focused: false });
-  }
-
   handleMousePress = (e) => {
-    const { focused } = this.state;
-    if(focused) {
-      e.preventDefault()
+    let cursorPosition = e.target.selectionStart;
+    if (cursorPosition === 2 || cursorPosition === 4) {
+      cursorPosition += 1;
     }
+    this.focusNextPosition(cursorPosition);
+    e.preventDefault();
   }
 
   render() {
@@ -121,11 +107,10 @@ class Solution extends React.Component {
     return (
       <div>
         <input
+          className="time-input"
           ref={ref => this.input = ref}
           value={mapValueToString(currentValue)}
-          onBlur={this.handleBlur}
-          onFocus={this.handleFocus}
-          onMouseDown={this.handleMousePress}
+          onMouseUp={this.handleMousePress}
           onKeyDown={this.handleKeyPress}/>
       </div>
     );
