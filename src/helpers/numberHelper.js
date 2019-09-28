@@ -1,3 +1,9 @@
+// @Constants
+import {
+  DURATION_TIME_MINUTE_SEPARATOR,
+  DURATION_TIME_MS_SEPARATOR
+} from '../constans/constants';
+
 const getMinutes = (timeInMS=0) => {
   const minValue =  Math.floor(timeInMS / 60000).toString();
   return minValue.length > 1 ? minValue : `0${minValue}`;
@@ -29,9 +35,9 @@ const mapValueToArray = timeInMS => {
   const ms = getMS(timeInMS);
   return [
     ...Array.from(minutes),
-    ':',
+    DURATION_TIME_MINUTE_SEPARATOR,
     ...Array.from(seconds),
-    '.',
+    DURATION_TIME_MS_SEPARATOR,
     ...Array.from(ms)
   ];
 };
